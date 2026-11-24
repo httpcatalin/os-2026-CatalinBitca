@@ -1,0 +1,24 @@
+#include <stdio.h>
+#include <pthread.h>
+
+#define N 1000000
+long counter = 0;
+
+void *work(void *arg) {
+    long id = (long)arg;
+    printf("thread %ld sees counter = %ld\n", id, counter);
+    for (int i = 0; i < N; i++)
+        counter++;
+    return NULL;
+}
+
+int main(void) {
+    pthread_t a, b;
+    pthread_create(&a, NULL, work, (void *)1);
+    pthread_create(&b, NULL, work, (void *)2);
+    pthread_join(a, NULL);
+    pthread_join(b, NULL);
+    printf("expected: %d\n", 2 * N);
+    printf("counter: %ld    (lost updates: the race)\n", counter);
+    return 0;
+}
